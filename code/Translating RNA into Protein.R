@@ -10,4 +10,3 @@ dna <- s2c(dna)
 prot <- translate(dna)
 
 cat(prot, sep = "")
-
