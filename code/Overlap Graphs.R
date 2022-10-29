@@ -1,3 +1,4 @@
+# more elegant version at the end
 library(Biostrings)
 library(tidyverse)
 
@@ -51,6 +52,44 @@ O3 <- function(x){
 # text file with the results
 sink("res_grph.txt")
 O3(index)
+sink()
+
+# remove the text file
+unlink("res_grph.txt")
+
+# 
+# 
+# 
+# more elegant version
+library(Biostrings)
+
+# import data
+data <- readDNAStringSet("data/rosalind_grph.txt")
+
+# transform data into a data frame with prefix and suffix
+seq <- strsplit(toString(data), ", ")[[1]]
+dna <- as.data.frame(seq)
+dna$names <- names(data)
+dna$prefix <- substr(dna$seq, 0, 3)
+dna$suffix <- apply(dna,1, FUN = function(row){s<-row[1]; substr(s, nchar(s)-2, nchar(s))})
+dna <- subset(dna, select = - seq)
+
+# data frame with all the combination possible of two sequences
+n <- length(data)
+eg <- expand.grid(1:n,1:n)
+
+# remove the combination of the same sequence
+eg <- eg[eg$Var1 != eg$Var2,]
+
+# add the name of the sequence in the data frame
+eg$name1<-dna[eg$Var1,]$name
+eg$name2<-dna[eg$Var2,]$name
+
+# text file with the results
+sink("res_grph.txt")
+
+# print the name of the sequences if the suffix is equal to the prefix
+print(eg[dna[eg$Var1,]$suffix == dna[eg$Var2,]$prefix, c("name1","name2")], row.names=F, col.names=F)
 sink()
 
 # remove the text file
